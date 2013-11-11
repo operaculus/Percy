@@ -4,3 +4,6 @@
 .pydevproject
 .settings/*
 target/*
+project/*
+!project/PerrinBuild.scala
+!project/plugins.sbt
