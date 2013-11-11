@@ -8,4 +8,5 @@ PercyExp里包含了用来转换训练数据和模型的脚本，可以使用LDA
 其他能做到并行化的如Mr.LDA，需要依赖笨重难用的Hadoop。
 
 在单机并行化越来越强大和内存廉价的今天，需要一个单机LDA工具，因此我开发了它，使用了Scala语言，欢迎使用。
+任何问题请联系我，tengfeiDOTbao#gmailDOTcom
 
