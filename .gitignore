@@ -5,5 +5,5 @@
 .settings/*
 target/*
 project/*
-!project/PerrinBuild.scala
+!project/PercyBuild.scala
 !project/plugins.sbt
