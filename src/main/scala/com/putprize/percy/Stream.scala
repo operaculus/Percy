@@ -9,6 +9,47 @@ import scala.io.Source
 object PercyStream {
   
   val _log = Logger.getLogger(this.getClass.getName)
+
+  // Mode: one
+  def run(locationSize:String,
+          locationData:String,
+          locationCountT:String,
+          locationCountV:String,
+          ROOT:String,
+          K:Int,
+          I:Int) = {
+    
+    _log.info("Begin ...")
+    val s = Data.initSize(locationSize)
+    val N = s._1 // Document Number
+    val M = s._2 // Token Number
+    
+    val model = PercyModel.initModel(K,M)
+    
+    _log.info("Init Model Done")
+    
+    val U = new PercyUpdater(model, N, M)
+    
+    _log.info("Init Updaer Done")
+    
+    (0 until I).foreach { i =>
+      _log.info(i)
+      
+      val Xs = Data.initData(locationData).toMap
+      _log.info("Got Data "+Xs.size)
+      U.run_em(Xs,0)
+      
+      if (i % 20 == 0){
+        PercyModel.saveCountT(model.countT, ROOT+"/"+locationCountT+"_Done_"+i)
+        PercyModel.saveCountV(model.countT, model.countV, ROOT+"/"+locationCountV+"_Done_"+i)
+      }
+      
+    }
+    
+    PercyModel.saveCountT(model.countT,ROOT+"/"+locationCountT)
+    PercyModel.saveCountV(model.countT,model.countV,ROOT+"/"+locationCountV)
+    
+  }
   
   // Mode: stream
   def run(
@@ -48,11 +89,14 @@ object PercyStream {
         val i2 = if (i1+Bsize < xs.size) i1+Bsize else xs.size
         val Xs = xs.slice(i1, i2).toMap
         _log.info("Run "+i+" "+Xs.size)
-        if (Xs.size > 0)
-          U.run_em(Xs)
-        if (U.count % Nsave == 0){
-    	    PercyModel.saveCountT(model.countT, ROOT2+"/"+locationCountT+"_"+U.count)
-    	    PercyModel.saveCountV(model.countT, model.countV, ROOT2+"/"+locationCountV+"_"+U.count)        
+        if (Xs.size > 0){
+          U.run_em(Xs,1)
+          if (U.count % Nsave == 0){
+        	  _log.info("Save ..."+U.count)
+    	      PercyModel.saveCountT(model.countT, ROOT2+"/"+locationCountT+"_"+U.count)
+    	      PercyModel.saveCountV(model.countT, model.countV, ROOT2+"/"+locationCountV+"_"+U.count)     
+    	      _log.info("Save Done")
+          }
         }
       }
     }
@@ -64,45 +108,6 @@ object PercyStream {
     PercyModel.saveCountV(model.countT, model.countV,ROOT2+"/"+locationCountV)
   }
   
-  // Mode: one
-  def run(locationSize:String,
-          locationData:String,
-          locationCountT:String,
-          locationCountV:String,
-          ROOT:String,
-          K:Int,
-          I:Int) = {
-    
-    _log.info("Begin ...")
-    val s = Data.initSize(locationSize)
-    val N = s._1
-    val M = s._2
-    
-    val model = PercyModel.initModel(K,M)
-    
-    _log.info("Init Model Done")
-    
-    val U = new PercyUpdater(model, N, M)
-    
-    _log.info("Init Updaer Done")
-    
-    (0 until I).foreach { i =>
-      _log.info(i)
-      
-      val Xs = Data.initData(locationData).toMap
-      _log.info("Got Data "+Xs.size)
-      U.run_em(Xs)
-      
-      if (i % 20 == 0){
-        PercyModel.saveCountT(model.countT, ROOT+"/"+locationCountT+"_Done_"+i)
-        PercyModel.saveCountV(model.countT, model.countV, ROOT+"/"+locationCountV+"_Done_"+i)
-      }
-      
-    }
-    
-    PercyModel.saveCountT(model.countT,ROOT+"/"+locationCountT)
-    PercyModel.saveCountV(model.countT,model.countV,ROOT+"/"+locationCountV)
-    
-  }
+
 
 }

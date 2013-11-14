@@ -116,7 +116,8 @@ object PercyModel {
     for (i <- 0 until countV.size){
       val vs = (0 until countV(i).size).par.
       			map( z => {(z,countV(i)(z))}).
-      			filter( zv => (zv._2/countT(zv._1)) > 1e-7)
+      			//filter( zv => (zv._2/countT(zv._1)) > 1e-4)
+      			filter( zv => (zv._2) > 1)
       val line = 
         if (vs.size > 0) 
         	vs.map( v => {v._1.toString+":"+v._2.toString}).reduce(_+" "+_)

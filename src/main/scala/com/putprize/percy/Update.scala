@@ -6,6 +6,8 @@ import scala.collection.mutable.{HashMap => HMap}
 
 import org.apache.log4j.Logger
 
+// 0: One
+// 1: Stream
 class PercyUpdater(m:Model2, N:Int, M:Int) {
   
   val model = m
@@ -24,7 +26,7 @@ class PercyUpdater(m:Model2, N:Int, M:Int) {
     xs.values.par.flatMap(x => x.vs).toSet.toArray
   }
   
-  def run_em(xs:Map[String,Document]) = {
+  def run_em(xs:Map[String,Document],U:Int = 1) = {
     
     count += 1
     _log.info("RunEM "+count)
@@ -86,25 +88,35 @@ class PercyUpdater(m:Model2, N:Int, M:Int) {
     
    _log.info("Update Model ...")
     (0 until K).par.foreach( z => {
-      val c1 = model.getCountT(z)
-      //val c2 = countT(z)*N/xs.size.toDouble+M*model.INIT_V_VALUE
-      val c2 = countT(z)
-      //model.setCountT(z, (1-rate)*c1+rate*c2)
-      model.setCountT(z,c1+c2);
+      if (U == 1){
+        val c1 = model.getCountT(z)
+        //val c2 = countT(z)*N/xs.size.toDouble+M*model.INIT_V_VALUE
+        val c2 = countT(z)
+        //model.setCountT(z, (1-rate)*c1+rate*c2)
+        model.setCountT(z,c1+c2);
+      }
+      else {
+        model.setCountT(z, countT(z));
+      }
     })
     
     (0 until M).par.foreach( v => {
       (0 until K).foreach( z => {
-        val c1 = model.getCountV(v, z)
-        val c2 = 
-          if (countV.contains(v)) 
-            //countV(v)(z)*N/xs.size.toDouble+model.INIT_V_VALUE 
-            countV(v)(z)
-          else 
-            //model.INIT_V_VALUE
-            0.0
-        //model.setCountV(v, z, (1-rate)*c1+rate*c2)
-        model.setCountV(v, z, c1+c2)
+        if (U == 1){
+          val c1 = model.getCountV(v, z)
+          val c2 = 
+            if (countV.contains(v)) 
+              //countV(v)(z)*N/xs.size.toDouble+model.INIT_V_VALUE 
+              countV(v)(z)
+            else 
+              //model.INIT_V_VALUE
+              0.0
+            //model.setCountV(v, z, (1-rate)*c1+rate*c2)
+          model.setCountV(v, z, c1+c2)
+        }
+        else {
+          model.setCountV(v,z,countV(v)(z))
+        }
       })
     })
     
