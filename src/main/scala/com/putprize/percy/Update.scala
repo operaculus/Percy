@@ -39,7 +39,7 @@ class PercyUpdater(m:Model2, N:Int, M:Int) {
     val countT = new Array[Double](K)
     
     val countV = Vs.map(v => {(v,new Array[Double](K))}).toMap
-    
+    _log.info("countV size "+countV.size)
     _log.info("Count Init Done")
     
     // 1.
@@ -87,8 +87,10 @@ class PercyUpdater(m:Model2, N:Int, M:Int) {
    _log.info("Update Model ...")
     (0 until K).par.foreach( z => {
       val c1 = model.getCountT(z)
-      val c2 = countT(z)*N/xs.size.toDouble+M*model.INIT_V_VALUE
-      model.setCountT(z, (1-rate)*c1+rate*c2)
+      //val c2 = countT(z)*N/xs.size.toDouble+M*model.INIT_V_VALUE
+      val c2 = countT(z)
+      //model.setCountT(z, (1-rate)*c1+rate*c2)
+      model.setCountT(z,c1+c2);
     })
     
     (0 until M).par.foreach( v => {
@@ -96,10 +98,13 @@ class PercyUpdater(m:Model2, N:Int, M:Int) {
         val c1 = model.getCountV(v, z)
         val c2 = 
           if (countV.contains(v)) 
-            countV(v)(z)*N/xs.size.toDouble+model.INIT_V_VALUE 
+            //countV(v)(z)*N/xs.size.toDouble+model.INIT_V_VALUE 
+            countV(v)(z)
           else 
-            model.INIT_V_VALUE
-        model.setCountV(v, z, (1-rate)*c1+rate*c2)
+            //model.INIT_V_VALUE
+            0.0
+        //model.setCountV(v, z, (1-rate)*c1+rate*c2)
+        model.setCountV(v, z, c1+c2)
       })
     })
     

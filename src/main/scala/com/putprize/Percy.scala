@@ -10,6 +10,21 @@ import com.putprize.percy.PercyStream
 
 object Percy extends App {
   
+//  def setParallelismGlobally(numThreads: Int): Unit = {
+//    val parPkgObj = scala.collection.parallel.`package`
+//    val defaultTaskSupportField = parPkgObj.getClass.getDeclaredFields.find{
+//      _.getName == "defaultTaskSupport"
+//    }.get
+//
+//    defaultTaskSupportField.setAccessible(true)
+//    defaultTaskSupportField.set(
+//      parPkgObj, 
+//      new scala.collection.parallel.ForkJoinTaskSupport(
+//        new scala.concurrent.forkjoin.ForkJoinPool(numThreads)
+//      ) 
+//    )
+//  }
+  
   println("Hello Percy")
   
   val c= ConfigFactory.parseFile(new File("Percy.properties"))
@@ -18,7 +33,7 @@ object Percy extends App {
   import collection.parallel.ForkJoinTasks.defaultForkJoinPool._
 
   println(getParallelism)
-  //setParallelism(x)
+  //setParallelismGlobally(x)
   println(getParallelism)
   
   
