@@ -1,3 +1,4 @@
+*jar
 .cache
 .classpath
 .project
@@ -7,3 +8,6 @@ target/*
 project/*
 !project/PercyBuild.scala
 !project/plugins.sbt
+PercyExp/*
+!PercyExp/process.py
+!PercyExp/convert.py

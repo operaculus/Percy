@@ -31,6 +31,7 @@ class PercyUpdater(m:Model2, N:Int, M:Int) {
     count += 1
     _log.info("RunEM "+count)
     _log.info("Rate "+rate)
+    _log.info("Mode "+U)
     
     val K = model.K
     
@@ -87,38 +88,35 @@ class PercyUpdater(m:Model2, N:Int, M:Int) {
     _log.info("Perplexity 2 For "+count+" "+exp(-N1/N2))
     
    _log.info("Update Model ...")
-    (0 until K).par.foreach( z => {
-      if (U == 1){
-        val c1 = model.getCountT(z)
-        //val c2 = countT(z)*N/xs.size.toDouble+M*model.INIT_V_VALUE
-        val c2 = countT(z)
-        //model.setCountT(z, (1-rate)*c1+rate*c2)
-        model.setCountT(z,c1+c2);
-      }
-      else {
-        model.setCountT(z, countT(z));
-      }
-    })
-    
+
     (0 until M).par.foreach( v => {
       (0 until K).foreach( z => {
         if (U == 1){
           val c1 = model.getCountV(v, z)
           val c2 = 
             if (countV.contains(v)) 
-              //countV(v)(z)*N/xs.size.toDouble+model.INIT_V_VALUE 
-              countV(v)(z)
+              countV(v)(z)*N/xs.size.toDouble+model.INIT_V_VALUE 
             else 
-              //model.INIT_V_VALUE
-              0.0
-            //model.setCountV(v, z, (1-rate)*c1+rate*c2)
-          model.setCountV(v, z, c1+c2)
+              model.INIT_V_VALUE
+          model.setCountV(v, z, (1-rate)*c1+rate*c2)
         }
         else {
           model.setCountV(v,z,countV(v)(z))
         }
       })
     })
+    
+    
+    if (U == 1){
+      val tmpCountT = model.sumCountV
+      (0 until K).par.foreach(z => {
+        model.setCountT(z, tmpCountT(z))
+      })
+    } else {
+      (0 until K).par.foreach(z => {
+        model.setCountT(z, countT(z))
+      })
+    }
     
     _log.info("Update Model Done")
     
