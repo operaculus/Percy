@@ -57,12 +57,10 @@ class Model2(
   
   def pvzBeta(v:Int,z:Int) = {
     (countV(v)(z)+INIT_V_VALUE)/(countT(z)+countV.size*INIT_V_VALUE)
-    //countV(v)(z)
   }  
  
   def logPvzBeta(v:Int,z:Int) = {
     log(countV(v)(z)+INIT_V_VALUE) - log(countT(z)+countV.size*INIT_V_VALUE)
-    //log(countV(v)(z))
   } 
   
   def INIT_T_VALUE = initT
@@ -82,7 +80,7 @@ class Model2(
     def _sum(A1:Array[Double], A2:Array[Double]) = {
       (0 until K).map( k => A1(k)+A2(k)).toArray
     }
-    countV.reduce(_sum)
+    countV.par.reduce(_sum)
   }
 }
 
@@ -107,11 +105,6 @@ object PercyModel {
         countT(z) += countV(v)(z)
       }
     }
-//    for (v <- 0 until M){
-//      for (z <- 0 until K){
-//        countV(v)(z) = countV(v)(z)/countT(z)
-//      }
-//    }
     println("Init CountV Done")
     
     new Model2(countT,countV,INIT_T_VALUE/K,INIT_V_VALUE)
